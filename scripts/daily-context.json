@@ -1,0 +1,47 @@
+{
+  "day": 12,
+  "date": "2026-05-30",
+  "version": "1.12.0",
+  "project_name": "x-template-012",
+  "theme": {
+    "name": "Layered Papercut",
+    "style": "Dimensional, tactile, crafted",
+    "mood": "whimsical, intricate, inviting"
+  },
+  "palette": {
+    "background": "#F8F5EE",
+    "surface": "#ECE8E0",
+    "primary": "#6B9E87",
+    "accent": "#E3856B",
+    "text": "#333333",
+    "muted": "#A0A0A0"
+  },
+  "typography": {
+    "heading": "Quicksand",
+    "body": "Inter",
+    "size": "medium"
+  },
+  "layout": {
+    "structure": "grid",
+    "density": "normal",
+    "border_style": "Sharp edges, subtle drop shadows"
+  },
+  "animation": {
+    "level": "minimal",
+    "style": "Subtle lift, soft transitions"
+  },
+  "components": {
+    "hero_text": "CRAFTED VISION",
+    "subtitle": "Explore a world of intricate layers and gentle textures.",
+    "button_label": "DISCOVER MORE",
+    "badge_text": "NEW COLLECTION"
+  },
+  "commit_message": "feat: UI Day 12 — Layered Papercut",
+  "source": "gemini-key1",
+  "selected_component": {
+    "category": "loaders",
+    "component": "Juanes200122_funny-frog-63.html",
+    "path": "C:\\Users\\User\\Documents\\GitHub\\Axon\\x-components\\loaders\\Juanes200122_funny-frog-63.html",
+    "content": "<span class=\"loader\"></span>\n\n<style>\n/* Website: https://cssloaders.github.io/ - Name: css-loader - Tags: simple, animation, red, loading, loader */\n.loader {\n  width: 48px;\n  height: 48px;\n  border: 3px dotted #fff;\n  border-style: solid solid dotted dotted;\n  border-radius: 50%;\n  display: inline-block;\n  position: relative;\n  box-sizing: border-box;\n  animation: rotation 2s linear infinite;\n}\n.loader::after {\n  content: \"\";\n  box-sizing: border-box;\n  position: absolute;\n  left: 0;\n  right: 0;\n  top: 0;\n  bottom: 0;\n  margin: auto;\n  border: 3px dotted #ff3d00;\n  border-style: solid solid dotted;\n  width: 24px;\n  height: 24px;\n  border-radius: 50%;\n  animation: rotationBack 1s linear infinite;\n  transform-origin: center center;\n}\n\n@keyframes rotation {\n  0% {\n    transform: rotate(0deg);\n  }\n  100% {\n    transform: rotate(360deg);\n  }\n}\n@keyframes rotationBack {\n  0% {\n    transform: rotate(0deg);\n  }\n  100% {\n    transform: rotate(-360deg);\n  }\n}\n\n</style>"
+  }
+}

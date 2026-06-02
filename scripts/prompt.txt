@@ -1,0 +1,142 @@
+You are building a daily UI project. Below is the theme specification for today.
+
+## Theme Context (daily-context.json)
+```json
+{
+  "day": 12,
+  "date": "2026-05-30",
+  "version": "1.12.0",
+  "project_name": "x-template-012",
+  "theme": {
+    "name": "Layered Papercut",
+    "style": "Dimensional, tactile, crafted",
+    "mood": "whimsical, intricate, inviting"
+  },
+  "palette": {
+    "background": "#F8F5EE",
+    "surface": "#ECE8E0",
+    "primary": "#6B9E87",
+    "accent": "#E3856B",
+    "text": "#333333",
+    "muted": "#A0A0A0"
+  },
+  "typography": {
+    "heading": "Quicksand",
+    "body": "Inter",
+    "size": "medium"
+  },
+  "layout": {
+    "structure": "grid",
+    "density": "normal",
+    "border_style": "Sharp edges, subtle drop shadows"
+  },
+  "animation": {
+    "level": "minimal",
+    "style": "Subtle lift, soft transitions"
+  },
+  "components": {
+    "hero_text": "CRAFTED VISION",
+    "subtitle": "Explore a world of intricate layers and gentle textures.",
+    "button_label": "DISCOVER MORE",
+    "badge_text": "NEW COLLECTION"
+  },
+  "commit_message": "feat: UI Day 12 — Layered Papercut",
+  "source": "gemini-key1",
+  "selected_component": {
+    "category": "Buttons",
+    "component": "gharsh11032000_orange-hound-27.html",
+    "path": "C:\\Users\\User\\Documents\\GitHub\\Axon\\x-components\\Buttons\\gharsh11032000_orange-hound-27.html",
+    "content": "<button class=\"button\">\n  Hover me\n</button>\n<style>\n/* Tags: button, shadow, hover effect */\n.button {\n  padding: 15px 20px;\n  font-size: 16px;\n  font-weight: 600;\n  border: 2px solid #414141;\n  color: white;\n  background-color: transparent;\n  cursor: pointer;\n  border-radius: 10px;\n  text-transform: uppercase;\n  transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);\n}\n\n.button:hover {\n  border-color: #0974f1;\n  box-shadow: 0 0 20px rgba(9, 117, 241, 0.8);\n}\n\n.button:active {\n  box-shadow: 0 0 10px rgba(9, 117, 241, 0.4);\n}\n</style>"
+  }
+}
+```
+
+## Selected Component Reference
+- Category: Buttons
+- Component: gharsh11032000_orange-hound-27.html
+- Path: C:\Users\User\Documents\GitHub\Axon\x-components\Buttons\gharsh11032000_orange-hound-27.html
+
+Use the selected component HTML below as the primary design reference for the new UI. Keep the structure and styling assumptions in mind while rewriting the requested files.
+```html
+<button class="button">
+  Hover me
+</button>
+<style>
+/* Tags: button, shadow, hover effect */
+.button {
+  padding: 15px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  border: 2px solid #414141;
+  color: white;
+  background-color: transparent;
+  cursor: pointer;
+  border-radius: 10px;
+  text-transform: uppercase;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+}
+
+.button:hover {
+  border-color: #0974f1;
+  box-shadow: 0 0 20px rgba(9, 117, 241, 0.8);
+}
+
+.button:active {
+  box-shadow: 0 0 10px rgba(9, 117, 241, 0.4);
+}
+</style>
+```
+
+## Your Task
+Completely redesign the UI by rewriting these three files from scratch:
+- `src/App.tsx`
+- `src/App.css`
+- `src/index.css`
+
+## Rules for App.tsx
+1. Keep ALL existing imports:
+   - `import { useState, useEffect, useRef } from 'react'`
+   - `import reactLogo from './assets/react.svg'`
+   - `import viteLogo from './assets/vite.svg'`
+   - `import heroImg from './assets/hero.png'`
+   - `import './App.css'`
+2. Keep the `CounterNum` component (useRef + useEffect animation)
+3. Keep the counter button with `onClick` / `setCount` handler
+4. Keep the Documentation section (Vite/React links)
+5. Keep the Social section (GitHub/Discord/X/Bluesky links + SVG icons)
+6. Do NOT use CSS custom properties (`--var-name`) in inline `style` attributes — TypeScript will error
+
+## Rules for CSS
+- Apply the palette, typography, layout structure, animation level, and component text from the JSON above
+- Use Google Fonts via `@import` in `index.css`
+- Match the theme mood: whimsical, intricate, inviting
+
+## Mandatory Requirements (apply to every build)
+
+### 1. Responsive — Mobile First
+- Design for mobile (320px) first, scale up with `min-width` breakpoints
+- Touch targets minimum 44×44px
+- No horizontal scroll on any screen size
+- Fluid typography: use `clamp()` or responsive units (`rem`, `%`, `vw`)
+- Images and layout must reflow gracefully at 320px, 768px, 1280px
+
+### 2. Footer Copyright
+- The page MUST have a `<footer>` at the bottom
+- Footer text: `© 2026 Microtronic. All rights reserved.`
+- Style the footer to match the theme palette (muted text on surface background)
+
+### 3. SEO Standards
+- `index.html` must have a descriptive `<title>`: `CRAFTED VISION — Layered Papercut | Microtronic`
+- Add `<meta name="description">` with the subtitle: `Explore a world of intricate layers and gentle textures.`
+- Add `<meta name="keywords">` relevant to the theme
+- Add Open Graph tags: `og:title`, `og:description`, `og:type` (website)
+- All images must have meaningful `alt` attributes
+- Use semantic HTML: `<header>`, `<main>`, `<section>`, `<footer>`, `<nav>` where appropriate
+- Heading hierarchy: one `<h1>` (hero), `<h2>` for sections — no skipping levels
+
+## After saving all files
+1. Update `version` in `package.json` to `1.12.0`
+2. Update `<title>` and meta tags in `index.html` as specified above
+3. Run: `pnpm build`
+4. If build succeeds → write `done` to `scripts/build-done.flag`
+5. If build fails with TypeScript errors → fix them and rebuild

@@ -1,0 +1,13 @@
+{
+  "name": "Daily UI Context Ready",
+  "version": "1.0.0",
+  "description": "เมื่อ Python 1 เขียน daily-context.json ลงใน x-template-NNN/scripts/ ให้ Kiro สร้าง UI ใหม่",
+  "when": {
+    "type": "fileCreated",
+    "patterns": ["scripts/daily-context.json"]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Read scripts/daily-context.json carefully. Based on the theme specification inside, completely redesign the UI by updating src/App.tsx, src/App.css, and src/index.css. The new UI must fully reflect the theme name, palette, typography, layout, animation level, and component text from the JSON. Also update the version field in package.json to match the version in the JSON. After all files are saved, run: pnpm build. If the build succeeds with no errors, write the text 'done' to scripts/build-done.flag"
+  }
+}

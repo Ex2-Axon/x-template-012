@@ -1,0 +1,84 @@
+name: Screenshot & Notify
+
+on:
+  workflow_run:
+    workflows: ["Deploy to GitHub Pages"]
+    types:
+      - completed
+
+permissions:
+  contents: write
+
+jobs:
+  screenshot:
+    name: Screenshot deployed site
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Playwright
+        run: |
+          npm install playwright
+          npx playwright install chromium --with-deps
+
+      - name: Wait for GitHub Pages to propagate
+        run: sleep 30
+
+      - name: Take screenshot
+        run: |
+          cat > take-screenshot.mjs << 'EOF'
+          import { chromium } from 'playwright';
+          const browser = await chromium.launch();
+          const page = await browser.newPage();
+          await page.setViewportSize({ width: 1280, height: 720 });
+          await page.goto('https://ex2-axon.github.io/x-template-012/', {
+            waitUntil: 'networkidle',
+            timeout: 30000
+          });
+          await page.waitForTimeout(2000);
+          await page.screenshot({ path: 'screenshot.png', fullPage: false });
+          await browser.close();
+          console.log('Screenshot saved');
+          EOF
+          node take-screenshot.mjs
+
+      - name: Read package info
+        id: pkg
+        run: |
+          echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+          echo "app_name=$(node -p "require('./package.json').name")" >> $GITHUB_OUTPUT
+
+      - name: Get commit info
+        id: commit
+        run: |
+          echo "message=$(git log -1 --pretty=format:'%s')" >> $GITHUB_OUTPUT
+          echo "hash=$(git log -1 --pretty=format:'%h')" >> $GITHUB_OUTPUT
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshot-${{ steps.pkg.outputs.version }}
+          path: screenshot.png
+          retention-days: 30
+
+      - name: Commit screenshot to repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          mkdir -p .github/screenshots
+          cp screenshot.png .github/screenshots/latest.png
+          cp screenshot.png ".github/screenshots/v${{ steps.pkg.outputs.version }}.png"
+          git add .github/screenshots/
+          git diff --staged --quiet || git commit -m "chore: update screenshot v${{ steps.pkg.outputs.version }} [skip ci]"
+          git push

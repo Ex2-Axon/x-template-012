@@ -1,0 +1,96 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Quicksand:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  /* Theme Colors from daily-context.json */
+  --color-bg-paper: #F8F5EE;
+  --color-surface: #ECE8E0;
+  --color-primary: #6B9E87;
+  --color-accent: #E3856B;
+  --color-text-main: #333333;
+  --color-text-muted: #A0A0A0;
+
+  /* Typography */
+  --font-heading: "Quicksand", sans-serif;
+  --font-body: "Inter", sans-serif;
+
+  /* Layered Papercut Shadows (10x effects) */
+  --shadow-cut-sm: 2px 2px 0px rgba(0, 0, 0, 0.05);
+  --shadow-cut-md: 4px 4px 0px rgba(0, 0, 0, 0.08);
+  --shadow-cut-lg: 8px 8px 0px rgba(0, 0, 0, 0.1);
+  
+  --shadow-lift-sm: 0 5px 15px rgba(0, 0, 0, 0.05);
+  --shadow-lift-md: 0 10px 25px rgba(0, 0, 0, 0.08);
+  --shadow-lift-lg: 0 20px 40px rgba(0, 0, 0, 0.12);
+
+  /* Animations */
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-sway: sway 8s ease-in-out infinite;
+  --animate-reveal: reveal 1s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  }
+  @keyframes sway {
+    0%, 100% { transform: rotate(-1deg); }
+    50% { transform: rotate(1deg); }
+  }
+  @keyframes reveal {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+:root {
+  background-color: var(--color-bg-paper);
+  color: var(--color-text-main);
+  font-family: var(--font-body);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background-image: 
+    radial-gradient(circle at 2px 2px, rgba(0,0,0,0.02) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+/* 10x Effect: Paper Grain */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  opacity: 0.4;
+  pointer-events: none;
+  z-index: 50;
+  background-image: url("https://www.transparenttextures.com/patterns/paper-fibers.png");
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg-paper);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-surface);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-muted);
+}
+
+/* Utility Classes for Papercut */
+.paper-layer {
+  background-color: white;
+  border: 1px solid rgba(0,0,0,0.05);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.paper-layer:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: var(--shadow-lift-md);
+}
