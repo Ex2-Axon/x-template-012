@@ -1,6 +1,9 @@
 name: Screenshot & Notify
 
 on:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
   workflow_run:
     workflows: ["Deploy to GitHub Pages"]
     types:
@@ -12,44 +15,71 @@ permissions:
 jobs:
   screenshot:
     name: Screenshot deployed site
-    runs-on: ubuntu-latest
+    runs-on:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true' ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: main
           fetch-depth: 2
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: '22'
+          node-version:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true' '22'
 
       - name: Install Playwright
         run: |
           npm install playwright
           npx playwright install chromium --with-deps
 
-      - name: Wait for GitHub Pages to propagate
-        run: sleep 30
-
-      - name: Take screenshot
+      - name: Wait for GitHub Pages and take screenshot with retry
         run: |
           cat > take-screenshot.mjs << 'EOF'
           import { chromium } from 'playwright';
-          const browser = await chromium.launch();
-          const page = await browser.newPage();
-          await page.setViewportSize({ width: 1280, height: 720 });
-          await page.goto('https://ex2-axon.github.io/x-template-012/', {
-            waitUntil: 'networkidle',
-            timeout: 30000
-          });
-          await page.waitForTimeout(2000);
-          await page.screenshot({ path: 'screenshot.png', fullPage: false });
-          await browser.close();
-          console.log('Screenshot saved');
+          
+          const MAX_RETRIES = 5;
+          const DELAY = 10000; // 10 seconds between retries
+          const URL = 'https://ex2-axon.github.io/x-template-012/';
+          
+          for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+            try {
+              console.log(`Attempt ${attempt}/${MAX_RETRIES}: Taking screenshot...`);
+              const browser = await chromium.launch();
+              const page = await browser.newPage();
+              await page.setViewportSize({ width: 1280, height: 720 });
+              
+              await page.goto(URL, {
+                waitUntil: 'networkidle',
+                timeout: 30000
+              });
+              
+              await page.waitForTimeout(2000);
+              await page.screenshot({ path: 'screenshot.png', fullPage: false });
+              await browser.close();
+              
+              console.log('Screenshot saved successfully');
+              process.exit(0);
+            } catch (error) {
+              console.error(`Attempt ${attempt} failed:`, error.message);
+              
+              if (attempt < MAX_RETRIES) {
+                console.log(`Waiting ${DELAY / 1000}s before retry...`);
+                await new Promise(r => setTimeout(r, DELAY));
+              } else {
+                console.error('All attempts failed');
+                process.exit(1);
+              }
+            }
+          }
           EOF
           node take-screenshot.mjs
 
@@ -66,7 +96,7 @@ jobs:
           echo "hash=$(git log -1 --pretty=format:'%h')" >> $GITHUB_OUTPUT
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: screenshot-${{ steps.pkg.outputs.version }}
           path: screenshot.png

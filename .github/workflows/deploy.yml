@@ -1,6 +1,9 @@
 name: Deploy to GitHub Pages
 
 on:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
   push:
     branches:
       - main
@@ -20,26 +23,34 @@ concurrency:
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true' ubuntu-latest
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: '22'
+          node-version:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true' '22'
 
       - name: Install pnpm
         uses: pnpm/action-setup@v3
         with:
-          version: latest
+          version:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true' latest
 
       - name: Install dependencies
         run: |
-          rm -f pnpm-lock.yaml
-          pnpm install
+          pnpm install --frozen-lockfile
 
       - name: Build
         run: pnpm build
@@ -52,7 +63,10 @@ jobs:
   deploy:
     name: Deploy
     needs: build
-    runs-on: ubuntu-latest
+    runs-on:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true' ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -60,4 +74,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
