@@ -1,56 +1,52 @@
 name: Deploy to GitHub Pages
 
 on:
-
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
   push:
     branches:
       - main
       - master
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
+# กำหนดสิทธิ์ระดับ Global สำหรับการอ่านโค้ดและการอัปเดตเว็บ Pages ไปยังระบบ Cloud อย่างปลอดภัย
 permissions:
   contents: read
   pages: write
   id-token: write
 
+# ระบบจัดคิวอัจฉริยะป้องกันไม่ให้บิวด์ซ้อนกันเวลา Push โค้ดติด ๆ กัน
 concurrency:
-  group: pages
+  group: pages-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  # --------------------------------------------------
+  # JOB 1: ทำการดาวน์โหลดโค้ด ติดตั้ง และทำการบิวด์โปรเจกต์
+  # --------------------------------------------------
   build:
-    name: Build
-    runs-on:
-
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true' ubuntu-latest
+    name: Build Website
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version:
-
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true' '24'
+      - name: Checkout Code
+        uses: actions/checkout@v6
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@v4
         with:
-          version:
+          version: latest
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true' latest
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'pnpm'
 
       - name: Install dependencies
-        run: |
-          pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
-      - name: Build
+      - name: Build Project
         run: pnpm build
 
       - name: Upload artifact
@@ -58,13 +54,13 @@ env:
         with:
           path: ./dist
 
+  # --------------------------------------------------
+  # JOB 2: นำแอปพลิเคชันที่บิวด์เสร็จอัปเดตขึ้นระบบ Cloud ของ GitHub Pages
+  # --------------------------------------------------
   deploy:
-    name: Deploy
+    name: Deploy to Pages
     needs: build
-    runs-on:
-
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true' ubuntu-latest
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

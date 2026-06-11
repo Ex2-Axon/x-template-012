@@ -8,10 +8,13 @@ and runs an embedded Node/Playwright screenshot script.
 
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
 from pathlib import Path
+
+PROJECT_DIR = Path(__file__).resolve().parent
 
 
 def load_env_file(env_path=".env"):
@@ -43,6 +46,33 @@ def get_screenshot_options(env_vars):
     full_page = env_vars.get("SCREENSHOT_FULL_PAGE", "false").lower() != "false"
     delay_ms = int(env_vars.get("SCREENSHOT_DELAY_MS", "3000"))
     return output, full_page, delay_ms
+
+
+def resolve_executable(name):
+    """Find a command on PATH, including Windows variants."""
+    path = shutil.which(name)
+    if path:
+        return path
+    if sys.platform == "win32":
+        for suffix in [".cmd", ".exe", ".ps1"]:
+            path = shutil.which(name + suffix)
+            if path:
+                return path
+    raise FileNotFoundError(f"Command not found: {name}")
+
+
+def install_playwright_if_missing():
+    """Install Playwright locally if it is not already installed."""
+    node_modules = PROJECT_DIR / "node_modules"
+    playwright_dir = node_modules / "playwright"
+    if playwright_dir.exists():
+        return
+
+    print("⚠️ Playwright not found locally. Installing playwright...")
+    pnpm = resolve_executable("pnpm")
+    result = subprocess.run([pnpm, "install", "playwright"], cwd=PROJECT_DIR)
+    if result.returncode != 0:
+        raise RuntimeError("Failed to install playwright. Please run pnpm install manually.")
 
 
 def build_screenshot_script(url, output, full_page, delay_ms):
@@ -85,6 +115,8 @@ def run_screenshot():
 
     print(f"📸 Taking screenshot for: {repo_name}")
     print(f"🌐 URL: {screenshot_url}")
+
+    install_playwright_if_missing()
 
     env = os.environ.copy()
     env.update(env_vars)
