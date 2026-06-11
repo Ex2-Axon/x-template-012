@@ -2,11 +2,12 @@
 """
 Run the exact automation steps for the current x-template repo.
 
-This script executes the same sequence of actions that were performed manually:
+This script executes the following sequence of actions:
 1. Install Node dependencies with pnpm using the local package.json and pnpm-lock.yaml
-2. Run screenshot_template.py to generate a screenshot
-3. Delete the generated node_modules directory to clean up local dependencies
-4. Run github_push.py to commit and push the changes to GitHub
+2. Run github_push.py to commit and push the changes to GitHub
+3. Wait 1 minute to allow GitHub Pages to rebuild
+4. Run screenshot_template.py to generate a screenshot of the updated page
+5. Delete the generated node_modules directory to clean up local dependencies
 
 File details:
 - screenshot_template.py: builds and executes a temporary Playwright script to capture a screenshot of the GitHub Pages URL from .env.
@@ -19,6 +20,7 @@ File details:
 import shutil
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 PROJECT_DIR = Path(__file__).resolve().parent
@@ -70,48 +72,58 @@ def run_command(command, cwd=None):
 
 
 def install_dependencies():
-    """Install Node.js dependencies for the current repo using pnpm."""
-    print("Step 1/4: Installing dependencies with pnpm...")
+    """Step 1: Install Node.js dependencies for the current repo using pnpm."""
+    print("Step 1/5: Installing dependencies with pnpm...")
     pnpm_cmd = resolve_executable("pnpm")
     run_command([pnpm_cmd, "install"], cwd=PROJECT_DIR)
-    print("Installed dependencies from package.json and pnpm-lock.yaml.")
+    print("✅ Installed dependencies from package.json and pnpm-lock.yaml.")
+
+
+def push_changes():
+    """Step 2: Run github_push.py to commit and push the repo changes."""
+    print("\nStep 2/5: Running github_push.py...")
+    run_command([sys.executable, str(GITHUB_PUSH_SCRIPT)], cwd=PROJECT_DIR)
+    print("✅ GitHub push step completed.")
 
 
 def take_screenshot():
-    """Run screenshot_template.py to capture the app screenshot."""
-    print("Step 2/4: Running screenshot_template.py...")
+    """Step 4: Run screenshot_template.py to capture the app screenshot."""
+    print("Step 4/5: Running screenshot_template.py...")
     run_command([sys.executable, str(SCREENSHOT_SCRIPT)], cwd=PROJECT_DIR)
     print("Screenshot step completed and screenshot file generated.")
 
 
+def delay_one_minute():
+    """Step 3: Wait 1 minute to allow GitHub Pages to rebuild."""
+    print("\nStep 3/5: Waiting 1 minute for GitHub Pages to rebuild...")
+    for remaining in range(60, 0, -1):
+        print(f"  ⏳ Waiting... {remaining} seconds remaining", end="\r")
+        time.sleep(1)
+    print("✅ 1 minute delay completed.                             \n")
+
+
 def remove_node_modules():
-    """Delete the local node_modules folder to clean up after installation."""
-    print("Step 3/4: Removing node_modules...")
+    """Step 5: Delete the local node_modules folder to clean up after installation."""
+    print("Step 5/5: Removing node_modules...")
     if NODE_MODULES_DIR.exists():
         shutil.rmtree(NODE_MODULES_DIR)
-        print("Removed node_modules folder.")
+        print("✅ Removed node_modules folder.")
     else:
-        print("node_modules folder does not exist; skipping removal.")
-
-
-def push_changes():
-    """Run github_push.py to commit and push the repo changes."""
-    print("Step 4/4: Running github_push.py...")
-    run_command([sys.executable, str(GITHUB_PUSH_SCRIPT)], cwd=PROJECT_DIR)
-    print("GitHub push step completed.")
+        print("ℹ️ node_modules folder does not exist; skipping removal.")
 
 
 def main():
     repo_name = get_repo_name()
-    print(f"Starting {repo_name} automated step runner...")
+    print(f"Starting {repo_name} automated step runner...\n")
     try:
-        install_dependencies()
-        take_screenshot()
-        remove_node_modules()
-        push_changes()
-        print("\nAll steps completed successfully.")
+        install_dependencies()        # Step 1: Install with pnpm
+        push_changes()                # Step 2: Push to GitHub
+        delay_one_minute()            # Step 3: Wait for GitHub Pages rebuild
+        take_screenshot()             # Step 4: Take screenshot
+        remove_node_modules()         # Step 5: Clean up node_modules
+        print("\n✅ All steps completed successfully.")
     except Exception as exc:
-        print(f"\nError: {exc}")
+        print(f"\n❌ Error: {exc}")
         sys.exit(1)
 
 
