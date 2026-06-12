@@ -8,6 +8,7 @@ This script executes the following sequence of actions:
 3. Wait 1 minute to allow GitHub Pages to rebuild
 4. Run screenshot_template.py to generate a screenshot of the updated page
 5. Delete the generated node_modules directory to clean up local dependencies
+6. Run copy_image_to_gallery.py to rename and copy the screenshot into gallery/public
 
 File details:
 - screenshot_template.py: builds and executes a temporary Playwright script to capture a screenshot of the GitHub Pages URL from .env.
@@ -26,6 +27,7 @@ from pathlib import Path
 PROJECT_DIR = Path(__file__).resolve().parent
 SCREENSHOT_SCRIPT = PROJECT_DIR / "screenshot_template.py"
 GITHUB_PUSH_SCRIPT = PROJECT_DIR / "github_push.py"
+COPY_IMAGE_SCRIPT = PROJECT_DIR / "copy_image_to_gallery.py"
 NODE_MODULES_DIR = PROJECT_DIR / "node_modules"
 
 
@@ -73,7 +75,7 @@ def run_command(command, cwd=None):
 
 def install_dependencies():
     """Step 1: Install Node.js dependencies for the current repo using pnpm."""
-    print("Step 1/5: Installing dependencies with pnpm...")
+    print("Step 1/6: Installing dependencies with pnpm...")
     pnpm_cmd = resolve_executable("pnpm")
     run_command([pnpm_cmd, "install"], cwd=PROJECT_DIR)
     print("✅ Installed dependencies from package.json and pnpm-lock.yaml.")
@@ -81,21 +83,21 @@ def install_dependencies():
 
 def push_changes():
     """Step 2: Run github_push.py to commit and push the repo changes."""
-    print("\nStep 2/5: Running github_push.py...")
+    print("\nStep 2/6: Running github_push.py...")
     run_command([sys.executable, str(GITHUB_PUSH_SCRIPT)], cwd=PROJECT_DIR)
     print("✅ GitHub push step completed.")
 
 
 def take_screenshot():
     """Step 4: Run screenshot_template.py to capture the app screenshot."""
-    print("Step 4/5: Running screenshot_template.py...")
+    print("Step 4/6: Running screenshot_template.py...")
     run_command([sys.executable, str(SCREENSHOT_SCRIPT)], cwd=PROJECT_DIR)
     print("Screenshot step completed and screenshot file generated.")
 
 
 def delay_one_minute():
     """Step 3: Wait 1 minute to allow GitHub Pages to rebuild."""
-    print("\nStep 3/5: Waiting 1 minute for GitHub Pages to rebuild...")
+    print("\nStep 3/6: Waiting 1 minute for GitHub Pages to rebuild...")
     for remaining in range(60, 0, -1):
         print(f"  ⏳ Waiting... {remaining} seconds remaining", end="\r")
         time.sleep(1)
@@ -104,12 +106,19 @@ def delay_one_minute():
 
 def remove_node_modules():
     """Step 5: Delete the local node_modules folder to clean up after installation."""
-    print("Step 5/5: Removing node_modules...")
+    print("Step 5/6: Removing node_modules...")
     if NODE_MODULES_DIR.exists():
         shutil.rmtree(NODE_MODULES_DIR)
         print("✅ Removed node_modules folder.")
     else:
         print("ℹ️ node_modules folder does not exist; skipping removal.")
+
+
+def copy_image_to_gallery():
+    """Step 6: Run copy_image_to_gallery.py to move screenshot to gallery/public."""
+    print("\nStep 6/6: Running copy_image_to_gallery.py...")
+    run_command([sys.executable, str(COPY_IMAGE_SCRIPT)], cwd=PROJECT_DIR)
+    print("✅ copy_image_to_gallery.py completed.")
 
 
 def main():
@@ -121,6 +130,7 @@ def main():
         delay_one_minute()            # Step 3: Wait for GitHub Pages rebuild
         take_screenshot()             # Step 4: Take screenshot
         remove_node_modules()         # Step 5: Clean up node_modules
+        copy_image_to_gallery()       # Step 6: Copy screenshot to gallery/public
         print("\n✅ All steps completed successfully.")
     except Exception as exc:
         print(f"\n❌ Error: {exc}")
